@@ -8,15 +8,15 @@ const int MAX_PATH_SIZE = 50;
 void checkListCapacity(int i, int** positionJ, int** distance, int* listCount, int* listMaxSize);
 void printAdjList(int** positionJ, int** distance, int n ,int* listCount);
 int isConnected(int i, int j ,int** positionJ, int** distance, int* listCount);
-bool isVisited(int id, int* list, int listSize);
 int getNodeAccumulateDistance(int id, int* route, int* accuDistList, int listSize);
+int storeNodeAcculateDistance(int nodeId, int newDist, int* nodes, int* distanceList,  int count);
 
 int main(){
 	
 	//initialization
 	int n=0, m=0, routeNum=0;
 	cin >> n >> m >> routeNum;
-	
+	n = n+1;
 	//dynamic array
 	int** distance = new int*[n];
 	int** positionJ = new int*[n];
@@ -65,38 +65,49 @@ int main(){
 		for(int i=0; i<routeCount; i++){
 			cin >> route[k][i];	
 		}
-		
-		int* pathAccuDist = new int [MAX_PATH_SIZE];
-		
+	
+		int* pathVisitedNode = new int [MAX_PATH_SIZE];
+		int* pathVisitedNodeDistance = new int [MAX_PATH_SIZE];
+		int pathVisitedNodeCount = 1;
+		pathVisitedNode[0] = route[k][0];
+		pathVisitedNodeDistance[0] = 0;
 		//check route
 		for(int i=1; i<routeCount; i++){
 			
 			int start = route[k][i-1];
 			int dest = route[k][i];
-			
-			//去過 回朔到當初的 dist 
-			if(isVisited(dest, route[k], i)){
-				//cout << "Visit: " << dest << " " << i << endl;
-				routeDistnace[k] = getNodeAccumulateDistance(dest, route[k], pathAccuDist, i);
-				//cout << "routeDistnace[k] " << routeDistnace[k] << endl;
+			//cout << "start and dest: " << start << " " << dest << endl;
+			//if visited, get the best distance
+			int bestStartDist = getNodeAccumulateDistance(start, pathVisitedNode, pathVisitedNodeDistance, pathVisitedNodeCount);
+			int bestDestDist = getNodeAccumulateDistance(dest, pathVisitedNode, pathVisitedNodeDistance, pathVisitedNodeCount);
+			int pathDistance = isConnected(start, dest, positionJ, distance, listCount);
+			//cout << "dist " << bestStartDist << " " << bestDestDist << " " << pathDistance <<endl;
+			if(pathDistance==-1){
+				// no link
+				routeDistnace[k] = -1;
+				break;
 			}
 			else{
-				
-				int pathDistance = isConnected(start, dest, positionJ, distance, listCount);
-			
-				if(pathDistance != -1){
-					routeDistnace[k] += pathDistance;
-					pathAccuDist[i] = routeDistnace[k];
+				int newDestDist = 0;
+				if(bestDestDist<0){
+					// not visited
+					newDestDist = bestStartDist + pathDistance;	
+				}
+				else if(bestStartDist + pathDistance < bestDestDist){
+					//shorter distance
+							
 				}
 				else{
-					routeDistnace[k] = -1;
-					pathAccuDist[i] = -1;
-					break;
+					newDestDist = bestDestDist;
 				}
-			}
+				//store new distance
+				pathVisitedNodeCount = storeNodeAcculateDistance(dest, newDestDist, pathVisitedNode, pathVisitedNodeDistance, pathVisitedNodeCount);
+				routeDistnace[k] = newDestDist;
+			}	
 		}
+		//cout << "route " << k << " route distance " << routeDistnace[k] << endl << endl;
+		
 	}
-
 	//output
 	for(int k=0; k<routeNum; k++){
 		if(k != routeNum-1){
@@ -142,7 +153,7 @@ void checkListCapacity(int i, int** positionJ, int** distance, int* listCount, i
 }
 
 void printAdjList(int** positionJ, int** distance, int n ,int* listCount){
-
+	
 	for(int i=0; i<n; i++){
 		cout << "***************************" << endl;
 		for(int j=0; j<listCount[i]; j++){
@@ -164,21 +175,29 @@ int isConnected(int i, int j ,int** positionJ, int** distance, int* listCount){
 	return -1;
 }
 
-bool isVisited(int id, int* list, int listSize){
-	
-	for(int i=0; i<listSize; i++){
-		if(list[i] == id){
-			return true;
+int getNodeAccumulateDistance(int dest, int* nodes, int* distance, int count){
+			
+	for(int i=0; i<count; i++){
+		if(nodes[i]==dest){
+			//cout << "node " << dest << " distance " << distance[i] << endl;
+			return distance[i];
 		}
-	}
-	return false;
+	}		
+	return -1;
 }
 
-int getNodeAccumulateDistance(int id, int* route, int* accuDistList, int listSize){
-	
-	for(int i=0;  i<listSize; i++){
-		if(route[i]== id){
-			return accuDistList[i];
+int storeNodeAcculateDistance(int nodeId, int newDist, int* nodes, int* distanceList,  int count){
+	int ListId = count;
+	//cout << "write accu " << nodeId << " " << newDist << endl;
+	//exist
+	for(int i=0; i<count; i++){
+		if(nodes[i]==nodeId){
+			
+			distanceList[i] = newDist;
+			return count;	
 		}
-	}
+	}		
+	nodes[count] = nodeId;
+	distanceList[count] = newDist;
+	return count +1;
 }
