@@ -55,7 +55,7 @@ int main(){
 		listCount[i]++;
 	}
 	
-	//printAdjList(positionJ, distance, n ,listCount);
+	printAdjList(positionJ, distance, n ,listCount);
 
 	//route input
 	for(int k=0; k<routeNum; k++){
@@ -111,7 +111,7 @@ int main(){
 				routeDistnace[k] = newDestDist;
 			}	
 		}
-		//cout << "route " << k << " route distance " << routeDistnace[k] << endl << endl;
+		cout << "route " << k << " route distance " << routeDistnace[k] << endl << endl;
 		
 	}
 	
@@ -190,7 +190,7 @@ int getNodeAccumulateDistance(int dest, int* nodes, int* distance, int count){
 			
 	for(int i=0; i<count; i++){
 		if(nodes[i]==dest){
-			//cout << "node " << dest << " distance " << distance[i] << endl;
+			cout << "node " << dest << " distance " << distance[i] << endl;
 			return distance[i];
 		}
 	}		
@@ -200,7 +200,7 @@ int getNodeAccumulateDistance(int dest, int* nodes, int* distance, int count){
 //write node accumulated shorted distance from start
 int storeNodeAcculateDistance(int nodeId, int newDist, int* nodes, int* distanceList,  int count){
 	int ListId = count;
-	//cout << "write accu " << nodeId << " " << newDist << endl;
+	cout << "write accu " << nodeId << " " << newDist << endl;
 	//exist
 	for(int i=0; i<count; i++){
 		if(nodes[i]==nodeId){
