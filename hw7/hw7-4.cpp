@@ -25,7 +25,7 @@ int main(){
 	
 	int** route = new int*[routeNum];
 	int* routeDistnace = new int[routeNum];
-	
+	 
 	for(int i = 0; i < n; ++i){
 		distance[i] = NULL;
 		positionJ[i] = NULL;
@@ -45,8 +45,10 @@ int main(){
 		int i=0, j=0, d=0;
 		cin >> i >> j >> d;
 		
+		//check list size if not enough then expand
 		checkListCapacity(i, positionJ, distance, listCount, listMaxSize);
 	
+		//insert
 		int newJ = listCount[i];
 		distance[i][newJ] = d;
 		positionJ[i][newJ] = j;
@@ -56,48 +58,52 @@ int main(){
 	//printAdjList(positionJ, distance, n ,listCount);
 
 	//route input
-
 	for(int k=0; k<routeNum; k++){
 		int routeCount = 0;
 		cin >> routeCount;
 
+		//insert
 		route[k] = new int[routeCount];
 		for(int i=0; i<routeCount; i++){
 			cin >> route[k][i];	
 		}
 	
+		//distance record of nodes in path
 		int* pathVisitedNode = new int [MAX_PATH_SIZE];
 		int* pathVisitedNodeDistance = new int [MAX_PATH_SIZE];
 		int pathVisitedNodeCount = 1;
 		pathVisitedNode[0] = route[k][0];
 		pathVisitedNodeDistance[0] = 0;
+		
 		//check route
 		for(int i=1; i<routeCount; i++){
 			
 			int start = route[k][i-1];
 			int dest = route[k][i];
-			//cout << "start and dest: " << start << " " << dest << endl;
+			
 			//if visited, get the best distance
 			int bestStartDist = getNodeAccumulateDistance(start, pathVisitedNode, pathVisitedNodeDistance, pathVisitedNodeCount);
 			int bestDestDist = getNodeAccumulateDistance(dest, pathVisitedNode, pathVisitedNodeDistance, pathVisitedNodeCount);
 			int pathDistance = isConnected(start, dest, positionJ, distance, listCount);
-			//cout << "dist " << bestStartDist << " " << bestDestDist << " " << pathDistance <<endl;
+		
 			if(pathDistance==-1){
 				// no link
 				routeDistnace[k] = -1;
 				break;
 			}
 			else{
+				// link exist then check whether visited
 				int newDestDist = 0;
 				if(bestDestDist<0){
 					// not visited
 					newDestDist = bestStartDist + pathDistance;	
 				}
 				else if(bestStartDist + pathDistance < bestDestDist){
-					//shorter distance
-							
+					// new route is shorter
+					newDestDist = bestStartDist + pathDistance;		
 				}
 				else{
+					// new route in
 					newDestDist = bestDestDist;
 				}
 				//store new distance
@@ -108,6 +114,7 @@ int main(){
 		//cout << "route " << k << " route distance " << routeDistnace[k] << endl << endl;
 		
 	}
+	
 	//output
 	for(int k=0; k<routeNum; k++){
 		if(k != routeNum-1){
@@ -119,6 +126,7 @@ int main(){
 	}
 } 
 
+//check list size if not enough then expand
 void checkListCapacity(int i, int** positionJ, int** distance, int* listCount, int* listMaxSize){
 	
 	//if not created crate adjacency list
@@ -141,6 +149,7 @@ void checkListCapacity(int i, int** positionJ, int** distance, int* listCount, i
 			newpositionJList[j] = positionJ[i][j];
 		}
 		
+		//delete old list
 		delete[] distance[i];
 		delete[] positionJ[i];
 		
@@ -152,6 +161,7 @@ void checkListCapacity(int i, int** positionJ, int** distance, int* listCount, i
 	}
 }
 
+//print adjacency list
 void printAdjList(int** positionJ, int** distance, int n ,int* listCount){
 	
 	for(int i=0; i<n; i++){
@@ -175,6 +185,7 @@ int isConnected(int i, int j ,int** positionJ, int** distance, int* listCount){
 	return -1;
 }
 
+//get node accumulated shorted distance from start
 int getNodeAccumulateDistance(int dest, int* nodes, int* distance, int count){
 			
 	for(int i=0; i<count; i++){
@@ -186,6 +197,7 @@ int getNodeAccumulateDistance(int dest, int* nodes, int* distance, int count){
 	return -1;
 }
 
+//write node accumulated shorted distance from start
 int storeNodeAcculateDistance(int nodeId, int newDist, int* nodes, int* distanceList,  int count){
 	int ListId = count;
 	//cout << "write accu " << nodeId << " " << newDist << endl;
